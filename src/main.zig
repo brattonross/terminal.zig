@@ -9,8 +9,6 @@ pub fn main() !void {
 
     const allocator = arena_allocator.allocator();
 
-    const stdout = std.io.getStdOut().writer();
-
     var args = try std.process.argsWithAllocator(allocator);
     _ = args.next();
 
@@ -27,269 +25,210 @@ pub fn main() !void {
     });
 
     if (std.mem.eql(u8, "product", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal product <command>", .{});
-        const product_client = client.product();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try product_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal product get <id>", .{});
-            switch (try product_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleProductCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "profile", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal profile <command>", .{});
-        const profile_client = client.profile();
-        if (std.mem.eql(u8, "get", subcommand)) {
-            switch (try profile_client.get()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "update", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal profile update <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.UpdateProfileRequest, allocator, json, .{});
-            switch (try profile_client.update(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleProfileCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "address", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal address <command>", .{});
-        const address_client = client.address();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try address_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal address get <id>", .{});
-            switch (try address_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "create", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal address create <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CreateAddressRequest, allocator, json, .{});
-            switch (try address_client.create(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "delete", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal address delete <id>", .{});
-            switch (try address_client.delete(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleAddressCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "card", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal card <command>", .{});
-        const card_client = client.card();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try card_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal card get <id>", .{});
-            switch (try card_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "create", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal card create <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CreateCardRequest, allocator, json, .{});
-            switch (try card_client.create(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "collect", subcommand)) {
-            switch (try card_client.collect()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "collect", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal card delete <id>", .{});
-            switch (try card_client.delete(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleCardCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "cart", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal cart <command>", .{});
-        const cart_client = client.cart();
-        if (std.mem.eql(u8, "get", subcommand)) {
-            switch (try cart_client.get()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "add-item", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal cart add-item <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CartAddItemRequest, allocator, json, .{});
-            switch (try cart_client.addItem(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "set-address", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal cart set-address <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CartSetAddressRequest, allocator, json, .{});
-            switch (try cart_client.setAddress(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "set-card", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal cart set-card <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CartSetCardRequest, allocator, json, .{});
-            switch (try cart_client.setCard(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "convert", subcommand)) {
-            switch (try cart_client.convertToOrder()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "clear", subcommand)) {
-            switch (try cart_client.clear()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleCartCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "order", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal order <command>", .{});
-        const order_client = client.order();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try order_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal order get <id>", .{});
-            switch (try order_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "create", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal order create <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CreateOrderRequest, allocator, json, .{});
-            switch (try order_client.create(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleOrderCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "subscription", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal subscription <command>", .{});
-        const subscription_client = client.subscription();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try subscription_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal subscription get <id>", .{});
-            switch (try subscription_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "update", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal subscription update <id> <json>", .{});
-            const json = args.next() orelse fatal("Usage: terminal subscription update <id> <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.UpdateSubscriptionRequest, allocator, json, .{});
-            switch (try subscription_client.update(id, request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "subscribe", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal subscription subscribe <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.SubscribeRequest, allocator, json, .{});
-            switch (try subscription_client.subscribe(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "cancel", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal subscription cancel <id>", .{});
-            switch (try subscription_client.cancel(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleSubscriptionCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "token", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal token <command>", .{});
-        const token_client = client.token();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try token_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal token get <id>", .{});
-            switch (try token_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "create", subcommand)) {
-            switch (try token_client.create()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "delete", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal token delete <id>", .{});
-            switch (try token_client.delete(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleTokenCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "app", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal app <command>", .{});
-        const app_client = client.app();
-        if (std.mem.eql(u8, "list", subcommand)) {
-            switch (try app_client.list()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "get", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal token get <id>", .{});
-            switch (try app_client.getById(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "create", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal app create <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.CreateAppRequest, allocator, json, .{});
-            switch (try app_client.create(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        } else if (std.mem.eql(u8, "delete", subcommand)) {
-            const id = args.next() orelse fatal("Usage: terminal app delete <id>", .{});
-            switch (try app_client.delete(id)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleAppCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "view", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal view <command>", .{});
-        const view_client = client.view();
-        if (std.mem.eql(u8, "init", subcommand)) {
-            switch (try view_client.init()) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleViewCommand(allocator, &client, &args);
     } else if (std.mem.eql(u8, "email", command)) {
-        const subcommand = args.next() orelse fatal("Usage: terminal email <command>", .{});
-        const email_client = client.email();
-        if (std.mem.eql(u8, "subscribe", subcommand)) {
-            const json = args.next() orelse fatal("Usage: terminal email subscribe <json>", .{});
-            const request = try std.json.parseFromSliceLeaky(terminal.EmailSubscribeRequest, allocator, json, .{});
-            switch (try email_client.subscribe(request)) {
-                .success => |value| try std.json.stringify(value, .{}, stdout),
-                .@"error" => |value| fatal("{}", .{value}),
-            }
-        }
+        try handleEmailCommand(allocator, &client, &args);
+    }
+}
+
+fn handleProductCommand(_: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal product <command>", .{});
+    const product_client = client.product();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListProductsResponse, try product_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal product get <id>", .{});
+        try handleResult(terminal.GetProductByIdResponse, try product_client.getById(id));
+    }
+}
+
+fn handleProfileCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal profile <command>", .{});
+    const profile_client = client.profile();
+    if (std.mem.eql(u8, "get", subcommand)) {
+        try handleResult(terminal.GetProfileResponse, try profile_client.get());
+    } else if (std.mem.eql(u8, "update", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal profile update <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.UpdateProfileRequest, allocator, json, .{});
+        try handleResult(terminal.UpdateProfileResponse, try profile_client.update(request));
+    }
+}
+
+fn handleAddressCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal address <command>", .{});
+    const address_client = client.address();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListAddressesResponse, try address_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal address get <id>", .{});
+        try handleResult(terminal.GetAddressByIdResponse, try address_client.getById(id));
+    } else if (std.mem.eql(u8, "create", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal address create <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CreateAddressRequest, allocator, json, .{});
+        try handleResult(terminal.CreateAddressResponse, try address_client.create(request));
+    } else if (std.mem.eql(u8, "delete", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal address delete <id>", .{});
+        try handleResult(terminal.DeleteAddressResponse, try address_client.delete(id));
+    }
+}
+
+fn handleCardCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal card <command>", .{});
+    const card_client = client.card();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListCardsResponse, try card_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal card get <id>", .{});
+        try handleResult(terminal.GetCardByIdResponse, try card_client.getById(id));
+    } else if (std.mem.eql(u8, "create", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal card create <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CreateCardRequest, allocator, json, .{});
+        try handleResult(terminal.CreateCardResponse, try card_client.create(request));
+    } else if (std.mem.eql(u8, "collect", subcommand)) {
+        try handleResult(terminal.CollectCardResponse, try card_client.collect());
+    } else if (std.mem.eql(u8, "collect", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal card delete <id>", .{});
+        try handleResult(terminal.DeleteCardResponse, try card_client.delete(id));
+    }
+}
+
+fn handleCartCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal cart <command>", .{});
+    const cart_client = client.cart();
+    if (std.mem.eql(u8, "get", subcommand)) {
+        try handleResult(terminal.GetCartResponse, try cart_client.get());
+    } else if (std.mem.eql(u8, "add-item", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal cart add-item <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CartAddItemRequest, allocator, json, .{});
+        try handleResult(terminal.CartAddItemResponse, try cart_client.addItem(request));
+    } else if (std.mem.eql(u8, "set-address", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal cart set-address <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CartSetAddressRequest, allocator, json, .{});
+        try handleResult(terminal.CartSetAddressResponse, try cart_client.setAddress(request));
+    } else if (std.mem.eql(u8, "set-card", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal cart set-card <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CartSetCardRequest, allocator, json, .{});
+        try handleResult(terminal.CartSetCardResponse, try cart_client.setCard(request));
+    } else if (std.mem.eql(u8, "convert", subcommand)) {
+        try handleResult(terminal.CartConvertToOrderResponse, try cart_client.convertToOrder());
+    } else if (std.mem.eql(u8, "clear", subcommand)) {
+        try handleResult(terminal.ClearCartResponse, try cart_client.clear());
+    }
+}
+
+fn handleOrderCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal order <command>", .{});
+    const order_client = client.order();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListOrdersResponse, try order_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal order get <id>", .{});
+        try handleResult(terminal.GetOrderByIdResponse, try order_client.getById(id));
+    } else if (std.mem.eql(u8, "create", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal order create <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CreateOrderRequest, allocator, json, .{});
+        try handleResult(terminal.CreateOrderResponse, try order_client.create(request));
+    }
+}
+
+fn handleSubscriptionCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal subscription <command>", .{});
+    const subscription_client = client.subscription();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListSubscriptionsResponse, try subscription_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal subscription get <id>", .{});
+        try handleResult(terminal.GetSubscriptionByIdResponse, try subscription_client.getById(id));
+    } else if (std.mem.eql(u8, "update", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal subscription update <id> <json>", .{});
+        const json = args.next() orelse fatal("Usage: terminal subscription update <id> <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.UpdateSubscriptionRequest, allocator, json, .{});
+        try handleResult(terminal.UpdateSubscriptionResponse, try subscription_client.update(id, request));
+    } else if (std.mem.eql(u8, "subscribe", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal subscription subscribe <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.SubscribeRequest, allocator, json, .{});
+        try handleResult(terminal.SubscribeResponse, try subscription_client.subscribe(request));
+    } else if (std.mem.eql(u8, "cancel", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal subscription cancel <id>", .{});
+        try handleResult(terminal.CancelSubscriptionResponse, try subscription_client.cancel(id));
+    }
+}
+
+fn handleTokenCommand(_: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal token <command>", .{});
+    const token_client = client.token();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListTokensResponse, try token_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal token get <id>", .{});
+        try handleResult(terminal.GetTokenByIdResponse, try token_client.getById(id));
+    } else if (std.mem.eql(u8, "create", subcommand)) {
+        try handleResult(terminal.CreateTokenResponse, try token_client.create());
+    } else if (std.mem.eql(u8, "delete", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal token delete <id>", .{});
+        try handleResult(terminal.DeleteTokenResponse, try token_client.delete(id));
+    }
+}
+
+fn handleAppCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal app <command>", .{});
+    const app_client = client.app();
+    if (std.mem.eql(u8, "list", subcommand)) {
+        try handleResult(terminal.ListAppsResponse, try app_client.list());
+    } else if (std.mem.eql(u8, "get", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal app get <id>", .{});
+        try handleResult(terminal.GetAppByIdResponse, try app_client.getById(id));
+    } else if (std.mem.eql(u8, "create", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal app create <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.CreateAppRequest, allocator, json, .{});
+        try handleResult(terminal.CreateAppResponse, try app_client.create(request));
+    } else if (std.mem.eql(u8, "delete", subcommand)) {
+        const id = args.next() orelse fatal("Usage: terminal app delete <id>", .{});
+        try handleResult(terminal.DeleteAppResponse, try app_client.delete(id));
+    }
+}
+
+fn handleViewCommand(_: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal view <command>", .{});
+    const view_client = client.view();
+    if (std.mem.eql(u8, "init", subcommand)) {
+        try handleResult(terminal.InitViewResponse, try view_client.init());
+    }
+}
+
+fn handleEmailCommand(allocator: Allocator, client: *terminal.Client, args: *ArgIterator) !void {
+    const subcommand = args.next() orelse fatal("Usage: terminal email <command>", .{});
+    const email_client = client.email();
+    if (std.mem.eql(u8, "subscribe", subcommand)) {
+        const json = args.next() orelse fatal("Usage: terminal email subscribe <json>", .{});
+        const request = try std.json.parseFromSliceLeaky(terminal.EmailSubscribeRequest, allocator, json, .{});
+        try handleResult(terminal.EmailSubscribeResponse, try email_client.subscribe(request));
+    }
+}
+
+fn handleResult(comptime T: type, result: Result(T)) !void {
+    const stdout = std.io.getStdOut().writer();
+    switch (result) {
+        .success => |value| try std.json.stringify(value, .{}, stdout),
+        .@"error" => |value| fatal("{}", .{value}),
     }
 }
 
@@ -299,5 +238,7 @@ fn fatal(comptime fmt: []const u8, args: anytype) noreturn {
 }
 
 const std = @import("std");
+const Allocator = std.mem.Allocator;
+const ArgIterator = std.process.ArgIterator;
 const terminal = @import("terminal");
 const Result = terminal.Client.Result;
