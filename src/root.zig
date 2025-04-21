@@ -46,3 +46,13 @@ pub const ListOrdersResponse = @import("order.zig").ListOrdersResponse;
 pub const GetOrderByIdResponse = @import("order.zig").GetOrderByIdResponse;
 pub const CreateOrderRequest = @import("order.zig").CreateOrderRequest;
 pub const CreateOrderResponse = @import("order.zig").CreateOrderResponse;
+
+// subscription
+pub const Subscription = @import("subscription.zig").Subscription;
+pub const ListSubscriptionsResponse = @import("subscription.zig").ListSubscriptionsResponse;
+pub const GetSubscriptionByIdResponse = @import("subscription.zig").GetSubscriptionByIdResponse;
+pub const UpdateSubscriptionRequest = @import("subscription.zig").UpdateSubscriptionRequest;
+pub const UpdateSubscriptionResponse = @import("subscription.zig").UpdateSubscriptionResponse;
+pub const SubscribeRequest = @import("subscription.zig").SubscribeRequest;
+pub const SubscribeResponse = @import("subscription.zig").SubscribeResponse;
+pub const CancelSubscriptionResponse = @import("subscription.zig").CancelSubscriptionResponse;

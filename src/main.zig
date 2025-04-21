@@ -180,6 +180,42 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "subscription", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal subscription <command>", .{});
+        const subscription_client = client.subscription();
+        if (std.mem.eql(u8, "list", subcommand)) {
+            switch (try subscription_client.list()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "get", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal subscription get <id>", .{});
+            switch (try subscription_client.getById(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "update", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal subscription update <id> <json>", .{});
+            const json = args.next() orelse fatal("Usage: terminal subscription update <id> <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.UpdateSubscriptionRequest, allocator, json, .{});
+            switch (try subscription_client.update(id, request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "subscribe", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal subscription subscribe <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.SubscribeRequest, allocator, json, .{});
+            switch (try subscription_client.subscribe(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "cancel", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal subscription cancel <id>", .{});
+            switch (try subscription_client.cancel(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 
