@@ -158,6 +158,28 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "order", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal order <command>", .{});
+        const order_client = client.order();
+        if (std.mem.eql(u8, "list", subcommand)) {
+            switch (try order_client.list()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "get", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal order get <id>", .{});
+            switch (try order_client.getById(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "create", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal order create <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CreateOrderRequest, allocator, json, .{});
+            switch (try order_client.create(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 

@@ -42,3 +42,7 @@ pub const ClearCartResponse = @import("cart.zig").ClearCartResponse;
 
 // order
 pub const Order = @import("order.zig").Order;
+pub const ListOrdersResponse = @import("order.zig").ListOrdersResponse;
+pub const GetOrderByIdResponse = @import("order.zig").GetOrderByIdResponse;
+pub const CreateOrderRequest = @import("order.zig").CreateOrderRequest;
+pub const CreateOrderResponse = @import("order.zig").CreateOrderResponse;

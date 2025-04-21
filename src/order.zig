@@ -1,3 +1,21 @@
+pub const OrderClient = struct {
+    client: *Client,
+
+    pub fn list(self: OrderClient) !Result(ListOrdersResponse) {
+        return try self.client.fetch(ListOrdersResponse, .GET, "/order", .{});
+    }
+
+    pub fn getById(self: OrderClient, id: []const u8) !Result(GetOrderByIdResponse) {
+        const url = try std.fmt.allocPrint(self.client.allocator, "/order/{s}", .{id});
+        defer self.client.allocator.free(url);
+        return try self.client.fetch(GetOrderByIdResponse, .GET, url, .{});
+    }
+
+    pub fn create(self: OrderClient, request: CreateOrderRequest) !Result(CreateOrderResponse) {
+        return try self.client.fetch(CreateOrderResponse, .POST, "/order", request);
+    }
+};
+
 pub const Order = struct {
     id: []const u8,
     index: ?u32 = null,
@@ -40,3 +58,25 @@ pub const Order = struct {
         productVariantID: ?[]const u8 = null,
     };
 };
+
+pub const ListOrdersResponse = struct {
+    data: []Order,
+};
+
+pub const GetOrderByIdResponse = struct {
+    data: Order,
+};
+
+pub const CreateOrderRequest = struct {
+    cardID: []const u8,
+    addressID: []const u8,
+    variants: std.json.ArrayHashMap(u32),
+};
+
+pub const CreateOrderResponse = struct {
+    data: []const u8,
+};
+
+const std = @import("std");
+const Client = @import("Client.zig");
+const Result = Client.Result;
