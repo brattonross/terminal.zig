@@ -63,3 +63,11 @@ pub const ListTokensResponse = @import("token.zig").ListTokensResponse;
 pub const GetTokenByIdResponse = @import("token.zig").GetTokenByIdResponse;
 pub const CreateTokenResponse = @import("token.zig").CreateTokenResponse;
 pub const DeleteTokenResponse = @import("token.zig").DeleteTokenResponse;
+
+// app
+pub const App = @import("app.zig").App;
+pub const ListAppsResponse = @import("app.zig").ListAppsResponse;
+pub const GetAppByIdResponse = @import("app.zig").GetAppByIdResponse;
+pub const CreateAppRequest = @import("app.zig").CreateAppRequest;
+pub const CreateAppResponse = @import("app.zig").CreateAppResponse;
+pub const DeleteAppResponse = @import("app.zig").DeleteAppResponse;

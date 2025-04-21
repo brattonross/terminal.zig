@@ -242,6 +242,34 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "app", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal app <command>", .{});
+        const app_client = client.app();
+        if (std.mem.eql(u8, "list", subcommand)) {
+            switch (try app_client.list()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "get", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal token get <id>", .{});
+            switch (try app_client.getById(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "create", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal app create <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CreateAppRequest, allocator, json, .{});
+            switch (try app_client.create(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "delete", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal app delete <id>", .{});
+            switch (try app_client.delete(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 
