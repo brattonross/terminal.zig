@@ -216,6 +216,32 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "token", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal token <command>", .{});
+        const token_client = client.token();
+        if (std.mem.eql(u8, "list", subcommand)) {
+            switch (try token_client.list()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "get", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal token get <id>", .{});
+            switch (try token_client.getById(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "create", subcommand)) {
+            switch (try token_client.create()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "delete", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal token delete <id>", .{});
+            switch (try token_client.delete(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 

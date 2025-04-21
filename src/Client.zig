@@ -49,6 +49,10 @@ pub fn subscription(self: *Client) SubscriptionClient {
     return .{ .client = self };
 }
 
+pub fn token(self: *Client) TokenClient {
+    return .{ .client = self };
+}
+
 pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []const u8, body: anytype) !Result(T) {
     var uri_buf: [1024]u8 = undefined;
     var remainder: []u8 = &uri_buf;
@@ -146,3 +150,4 @@ const CardClient = @import("card.zig").CardClient;
 const CartClient = @import("cart.zig").CartClient;
 const OrderClient = @import("order.zig").OrderClient;
 const SubscriptionClient = @import("subscription.zig").SubscriptionClient;
+const TokenClient = @import("token.zig").TokenClient;

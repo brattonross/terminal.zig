@@ -56,3 +56,10 @@ pub const UpdateSubscriptionResponse = @import("subscription.zig").UpdateSubscri
 pub const SubscribeRequest = @import("subscription.zig").SubscribeRequest;
 pub const SubscribeResponse = @import("subscription.zig").SubscribeResponse;
 pub const CancelSubscriptionResponse = @import("subscription.zig").CancelSubscriptionResponse;
+
+// token
+pub const Token = @import("token.zig").Token;
+pub const ListTokensResponse = @import("token.zig").ListTokensResponse;
+pub const GetTokenByIdResponse = @import("token.zig").GetTokenByIdResponse;
+pub const CreateTokenResponse = @import("token.zig").CreateTokenResponse;
+pub const DeleteTokenResponse = @import("token.zig").DeleteTokenResponse;
