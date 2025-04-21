@@ -27,3 +27,18 @@ pub const CreateCardRequest = @import("card.zig").CreateCardRequest;
 pub const CreateCardResponse = @import("card.zig").CreateCardResponse;
 pub const CollectCardResponse = @import("card.zig").CollectCardResponse;
 pub const DeleteCardResponse = @import("card.zig").DeleteCardResponse;
+
+// cart
+pub const Cart = @import("cart.zig").Cart;
+pub const GetCartResponse = @import("cart.zig").GetCartResponse;
+pub const CartAddItemRequest = @import("./cart.zig").CartAddItemRequest;
+pub const CartAddItemResponse = @import("./cart.zig").CartAddItemResponse;
+pub const CartSetAddressRequest = @import("./cart.zig").CartSetAddressRequest;
+pub const CartSetAddressResponse = @import("./cart.zig").CartSetAddressResponse;
+pub const CartSetCardRequest = @import("./cart.zig").CartSetCardRequest;
+pub const CartSetCardResponse = @import("./cart.zig").CartSetCardResponse;
+pub const CartConvertToOrderResponse = @import("cart.zig").CartConvertToOrderResponse;
+pub const ClearCartResponse = @import("cart.zig").ClearCartResponse;
+
+// order
+pub const Order = @import("order.zig").Order;

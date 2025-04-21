@@ -118,6 +118,46 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "cart", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal cart <command>", .{});
+        const cart_client = client.cart();
+        if (std.mem.eql(u8, "get", subcommand)) {
+            switch (try cart_client.get()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "add-item", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal cart add-item <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CartAddItemRequest, allocator, json, .{});
+            switch (try cart_client.addItem(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "set-address", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal cart set-address <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CartSetAddressRequest, allocator, json, .{});
+            switch (try cart_client.setAddress(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "set-card", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal cart set-card <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CartSetCardRequest, allocator, json, .{});
+            switch (try cart_client.setCard(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "convert", subcommand)) {
+            switch (try cart_client.convertToOrder()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "clear", subcommand)) {
+            switch (try cart_client.clear()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 

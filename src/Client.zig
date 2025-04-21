@@ -37,6 +37,10 @@ pub fn card(self: *Client) CardClient {
     return .{ .client = self };
 }
 
+pub fn cart(self: *Client) CartClient {
+    return .{ .client = self };
+}
+
 pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []const u8, body: anytype) !Result(T) {
     var uri_buf: [1024]u8 = undefined;
     var remainder: []u8 = &uri_buf;
@@ -131,3 +135,4 @@ const ProductClient = @import("product.zig").ProductClient;
 const ProfileClient = @import("profile.zig").ProfileClient;
 const AddressClient = @import("address.zig").AddressClient;
 const CardClient = @import("card.zig").CardClient;
+const CartClient = @import("cart.zig").CartClient;
