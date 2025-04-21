@@ -1,10 +1,12 @@
 pub const ProfileClient = struct {
     client: *Client,
 
+    /// Get the current user's profile.
     pub fn get(self: ProfileClient) !Result(GetProfileResponse) {
         return try self.client.fetch(GetProfileResponse, .GET, "/profile", .{});
     }
 
+    /// Update the current user's profile.
     pub fn update(self: ProfileClient, request: UpdateProfileRequest) !Result(UpdateProfileResponse) {
         return try self.client.fetch(UpdateProfileResponse, .PUT, "/profile", request);
     }

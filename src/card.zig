@@ -1,24 +1,29 @@
 pub const CardClient = struct {
     client: *Client,
 
+    /// List the credit cards associated with the current user.
     pub fn list(self: CardClient) !Result(ListCardsResponse) {
         return try self.client.fetch(ListCardsResponse, .GET, "/card", .{});
     }
 
+    /// Get a credit card by id associated with the current user.
     pub fn getById(self: CardClient, id: []const u8) !Result(GetCardByIdResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/card/{s}", .{id});
         defer self.client.allocator.free(url);
         return try self.client.fetch(GetCardByIdResponse, .GET, url, .{});
     }
 
+    /// Attach a credit card (tokenized via stripe) to the current user.
     pub fn create(self: CardClient, request: CreateCardRequest) !Result(CreateCardResponse) {
         return try self.client.fetch(CreateCardResponse, .POST, "/card", request);
     }
 
+    /// Create a temporary url for collecting credit card information for the current user.
     pub fn collect(self: CardClient) !Result(CollectCardResponse) {
         return try self.client.fetch(CollectCardResponse, .POST, "/card/collect", .{});
     }
 
+    /// Delete a credit card assocaited with the current user.
     pub fn delete(self: CardClient, id: []const u8) !Result(DeleteCardResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/card/{s}", .{id});
         defer self.client.allocator.free(url);

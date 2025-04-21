@@ -1,20 +1,24 @@
 pub const AppClient = struct {
     client: *Client,
 
+    /// List the current user's registered apps.
     pub fn list(self: AppClient) !Result(ListAppsResponse) {
         return try self.client.fetch(ListAppsResponse, .GET, "/app", .{});
     }
 
+    /// Get the app with the given id.
     pub fn getById(self: AppClient, id: []const u8) !Result(GetAppByIdResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/app/{s}", .{id});
         defer self.client.allocator.free(url);
         return try self.client.fetch(GetAppByIdResponse, .GET, url, .{});
     }
 
+    /// Create an app.
     pub fn create(self: AppClient, request: CreateAppRequest) !Result(CreateAppResponse) {
         return try self.client.fetch(CreateAppResponse, .POST, "/app", request);
     }
 
+    /// Delete the app with the given id.
     pub fn delete(self: AppClient, id: []const u8) !Result(DeleteAppResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/app/{s}", .{id});
         defer self.client.allocator.free(url);

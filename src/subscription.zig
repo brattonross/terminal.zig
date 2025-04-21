@@ -1,26 +1,31 @@
 pub const SubscriptionClient = struct {
     client: *Client,
 
+    /// List the subscriptions associated with the current user.
     pub fn list(self: SubscriptionClient) !Result(ListSubscriptionsResponse) {
         return try self.client.fetch(ListSubscriptionsResponse, .GET, "/subscription", .{});
     }
 
+    /// Get the subscription with the given id.
     pub fn getById(self: SubscriptionClient, id: []const u8) !Result(GetSubscriptionByIdResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/subscription/{s}", .{id});
         defer self.client.allocator.free(url);
         return try self.client.fetch(GetSubscriptionByIdResponse, .GET, url, .{});
     }
 
+    /// Update card, address, or interval for an existing subscription.
     pub fn update(self: SubscriptionClient, id: []const u8, request: UpdateSubscriptionRequest) !Result(UpdateSubscriptionResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/subscription/{s}", .{id});
         defer self.client.allocator.free(url);
         return try self.client.fetch(UpdateSubscriptionResponse, .PUT, url, request);
     }
 
+    /// Create a subscription for the current user.
     pub fn subscribe(self: SubscriptionClient, request: SubscribeRequest) !Result(SubscribeResponse) {
         return try self.client.fetch(SubscribeResponse, .POST, "/subscription", request);
     }
 
+    /// Cancel a subscription for the current user.
     pub fn cancel(self: SubscriptionClient, id: []const u8) !Result(CancelSubscriptionResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/subscription/{s}", .{id});
         defer self.client.allocator.free(url);

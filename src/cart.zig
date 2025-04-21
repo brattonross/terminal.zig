@@ -1,26 +1,32 @@
 pub const CartClient = struct {
     client: *Client,
 
+    /// Get the current user's cart.
     pub fn get(self: CartClient) !Result(GetCartResponse) {
         return try self.client.fetch(GetCartResponse, .GET, "/cart", .{});
     }
 
+    /// Add an item to the current user's cart.
     pub fn addItem(self: CartClient, request: CartAddItemRequest) !Result(CartAddItemResponse) {
         return try self.client.fetch(CartAddItemResponse, .PUT, "/cart/item", request);
     }
 
+    /// Set the shipping address for the current user's cart.
     pub fn setAddress(self: CartClient, request: CartSetAddressRequest) !Result(CartSetAddressResponse) {
         return try self.client.fetch(CartSetAddressResponse, .PUT, "/cart/address", request);
     }
 
+    /// Set the credit card for the current user's cart.
     pub fn setCard(self: CartClient, request: CartSetCardRequest) !Result(CartSetCardResponse) {
         return try self.client.fetch(CartSetCardResponse, .PUT, "/cart/card", request);
     }
 
+    /// Convert the current user's cart to an order.
     pub fn convertToOrder(self: CartClient) !Result(CartConvertToOrderResponse) {
         return try self.client.fetch(CartConvertToOrderResponse, .POST, "/cart/convert", .{});
     }
 
+    /// Clear the current user's cart.
     pub fn clear(self: CartClient) !Result(ClearCartResponse) {
         return try self.client.fetch(ClearCartResponse, .DELETE, "/cart", .{});
     }

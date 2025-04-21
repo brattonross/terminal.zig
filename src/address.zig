@@ -1,20 +1,24 @@
 pub const AddressClient = struct {
     client: *Client,
 
+    /// Get the shipping addresses associated with the current user.
     pub fn list(self: AddressClient) !Result(ListAddressesResponse) {
         return try self.client.fetch(ListAddressesResponse, .GET, "/address", .{});
     }
 
+    /// Get the shipping address with the given id.
     pub fn getById(self: AddressClient, id: []const u8) !Result(GetAddressByIdResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/address/{s}", .{id});
         defer self.client.allocator.free(url);
         return try self.client.fetch(GetAddressByIdResponse, .GET, url, .{});
     }
 
+    /// Create and add a shipping address to the current user.
     pub fn create(self: AddressClient, request: CreateAddressRequest) !Result(CreateAddressResponse) {
         return try self.client.fetch(CreateAddressResponse, .POST, "/address", request);
     }
 
+    /// Delete a shipping address from the current user.
     pub fn delete(self: AddressClient, id: []const u8) !Result(DeleteAddressResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/address/{s}", .{id});
         defer self.client.allocator.free(url);

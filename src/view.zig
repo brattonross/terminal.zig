@@ -1,6 +1,7 @@
 pub const ViewClient = struct {
     client: *Client,
 
+    /// Get initial app data, including user, products, cart, addresses, cards, subscriptions, and orders.
     pub fn init(self: ViewClient) !Result(InitViewResponse) {
         return try self.client.fetch(InitViewResponse, .GET, "/view/init", .{});
     }

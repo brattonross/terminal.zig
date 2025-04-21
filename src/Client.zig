@@ -1,9 +1,14 @@
 const default_base_uri = std.Uri.parse("https://api.terminal.shop") catch unreachable;
 
+/// Options for the Terminal API client.
 pub const Options = struct {
+    /// The allocator to use when allocating response structs, etc.
     allocator: std.mem.Allocator,
+    /// The base URI of the API. Defaults to `https://api.terminal.shop`.
     base_uri: ?std.Uri = null,
+    /// Your Terminal bearer token to send with requests.
     bearer_token: []const u8,
+    /// Custom http client implementation.
     http_client: ?std.http.Client = null,
 };
 

@@ -1,6 +1,7 @@
 pub const EmailClient = struct {
     client: *Client,
 
+    /// Subscribe to email updates from terminal.
     pub fn subscribe(self: EmailClient, request: EmailSubscribeRequest) !Result(EmailSubscribeResponse) {
         return try self.client.fetch(EmailSubscribeResponse, .POST, "/email", request);
     }

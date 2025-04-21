@@ -1,10 +1,12 @@
 pub const ProductClient = struct {
     client: *Client,
 
+    /// List all products for sale in the terminal shop.
     pub fn list(self: ProductClient) !Result(ListProductsResponse) {
         return try self.client.fetch(ListProductsResponse, .GET, "/product", .{});
     }
 
+    /// Get a product by id from the terminal shop.
     pub fn getById(self: ProductClient, id: []const u8) !Result(GetProductByIdResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/product/{s}", .{id});
         defer self.client.allocator.free(url);

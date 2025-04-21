@@ -1,16 +1,19 @@
 pub const OrderClient = struct {
     client: *Client,
 
+    /// List the orders associated with the current user.
     pub fn list(self: OrderClient) !Result(ListOrdersResponse) {
         return try self.client.fetch(ListOrdersResponse, .GET, "/order", .{});
     }
 
+    /// Get the order with the given id.
     pub fn getById(self: OrderClient, id: []const u8) !Result(GetOrderByIdResponse) {
         const url = try std.fmt.allocPrint(self.client.allocator, "/order/{s}", .{id});
         defer self.client.allocator.free(url);
         return try self.client.fetch(GetOrderByIdResponse, .GET, url, .{});
     }
 
+    /// Create an order without a cart. The order will be placed immediately.
     pub fn create(self: OrderClient, request: CreateOrderRequest) !Result(CreateOrderResponse) {
         return try self.client.fetch(CreateOrderResponse, .POST, "/order", request);
     }
