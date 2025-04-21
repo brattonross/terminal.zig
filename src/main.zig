@@ -50,20 +50,37 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         } else if (std.mem.eql(u8, "update", subcommand)) {
-            var name: ?[]const u8 = null;
-            var email: ?[]const u8 = null;
-            while (args.next()) |arg| {
-                if (std.mem.eql(u8, "--email", arg)) {
-                    email = args.next() orelse fatal("Missing value for flag --email", .{});
-                } else if (std.mem.eql(u8, "--name", arg)) {
-                    name = args.next() orelse fatal("Missing value for flag --name", .{});
-                } else fatal("Unknown argument: {s}", .{arg});
-            }
-            const request = terminal.UpdateProfileRequest{
-                .name = name orelse fatal("Missing required parameter: name", .{}),
-                .email = email orelse fatal("Missing required parameter: email", .{}),
-            };
+            const json = args.next() orelse fatal("Usage: terminal profile update <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.UpdateProfileRequest, allocator, json, .{});
             switch (try profile_client.update(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
+    } else if (std.mem.eql(u8, "address", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal address <command>", .{});
+        const address_client = client.address();
+        if (std.mem.eql(u8, "list", subcommand)) {
+            switch (try address_client.list()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "get", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal address get <id>", .{});
+            switch (try address_client.getById(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "create", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal address create <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CreateAddressRequest, allocator, json, .{});
+            switch (try address_client.create(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "delete", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal address delete <id>", .{});
+            switch (try address_client.delete(id)) {
                 .success => |value| try std.json.stringify(value, .{}, stdout),
                 .@"error" => |value| fatal("{}", .{value}),
             }
@@ -72,7 +89,7 @@ pub fn main() !void {
 }
 
 fn fatal(comptime fmt: []const u8, args: anytype) noreturn {
-    std.log.err(fmt, args);
+    std.io.getStdErr().writer().print(fmt, args) catch unreachable;
     std.process.exit(1);
 }
 

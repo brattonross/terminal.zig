@@ -32,7 +32,6 @@ pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []co
     var headers_buf: [1024]u8 = undefined;
     var request = try self.http_client.open(method, uri, .{
         .headers = .{
-            .accept_encoding = .{ .override = "application/json" },
             .authorization = .{ .override = auth_header_value },
             .content_type = .{ .override = "application/json" },
         },
@@ -40,19 +39,21 @@ pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []co
     });
     defer request.deinit();
 
-    try request.send();
-
     const BodyType = @TypeOf(body);
     const body_type_info = @typeInfo(BodyType);
     if (body_type_info != .@"struct") {
         @compileError("expected tuple or struct argument, found " ++ @typeName(BodyType));
     }
+
     if (body_type_info.@"struct".fields.len > 0) {
         request.transfer_encoding = .{ .chunked = {} };
+        try request.send();
         try std.json.stringify(body, .{}, request.writer());
+        try request.finish();
+    } else {
+        try request.send();
     }
 
-    try request.finish();
     try request.wait();
 
     var buf: [65535]u8 = undefined;
@@ -84,6 +85,10 @@ pub fn product(self: *Client) ProductClient {
 }
 
 pub fn profile(self: *Client) ProfileClient {
+    return .{ .client = self };
+}
+
+pub fn address(self: *Client) AddressClient {
     return .{ .client = self };
 }
 
@@ -120,3 +125,4 @@ const Client = @This();
 const std = @import("std");
 const ProductClient = @import("product.zig").ProductClient;
 const ProfileClient = @import("profile.zig").ProfileClient;
+const AddressClient = @import("address.zig").AddressClient;
