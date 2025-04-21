@@ -71,3 +71,6 @@ pub const GetAppByIdResponse = @import("app.zig").GetAppByIdResponse;
 pub const CreateAppRequest = @import("app.zig").CreateAppRequest;
 pub const CreateAppResponse = @import("app.zig").CreateAppResponse;
 pub const DeleteAppResponse = @import("app.zig").DeleteAppResponse;
+
+// view
+pub const InitViewResponse = @import("view.zig").InitViewResponse;

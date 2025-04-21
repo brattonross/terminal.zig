@@ -270,6 +270,15 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "view", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal view <command>", .{});
+        const view_client = client.view();
+        if (std.mem.eql(u8, "init", subcommand)) {
+            switch (try view_client.init()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 
