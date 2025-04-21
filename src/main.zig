@@ -85,11 +85,44 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "card", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal card <command>", .{});
+        const card_client = client.card();
+        if (std.mem.eql(u8, "list", subcommand)) {
+            switch (try card_client.list()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "get", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal card get <id>", .{});
+            switch (try card_client.getById(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "create", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal card create <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.CreateCardRequest, allocator, json, .{});
+            switch (try card_client.create(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "collect", subcommand)) {
+            switch (try card_client.collect()) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        } else if (std.mem.eql(u8, "collect", subcommand)) {
+            const id = args.next() orelse fatal("Usage: terminal card delete <id>", .{});
+            switch (try card_client.delete(id)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 
 fn fatal(comptime fmt: []const u8, args: anytype) noreturn {
-    std.io.getStdErr().writer().print(fmt, args) catch unreachable;
+    std.io.getStdErr().writer().print(fmt, args) catch @panic("failed to write to stderr");
     std.process.exit(1);
 }
 

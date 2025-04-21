@@ -21,6 +21,22 @@ pub fn init(opts: Options) Client {
     };
 }
 
+pub fn product(self: *Client) ProductClient {
+    return .{ .client = self };
+}
+
+pub fn profile(self: *Client) ProfileClient {
+    return .{ .client = self };
+}
+
+pub fn address(self: *Client) AddressClient {
+    return .{ .client = self };
+}
+
+pub fn card(self: *Client) CardClient {
+    return .{ .client = self };
+}
+
 pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []const u8, body: anytype) !Result(T) {
     var uri_buf: [1024]u8 = undefined;
     var remainder: []u8 = &uri_buf;
@@ -80,18 +96,6 @@ pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []co
     };
 }
 
-pub fn product(self: *Client) ProductClient {
-    return .{ .client = self };
-}
-
-pub fn profile(self: *Client) ProfileClient {
-    return .{ .client = self };
-}
-
-pub fn address(self: *Client) AddressClient {
-    return .{ .client = self };
-}
-
 pub fn Result(comptime T: type) type {
     return union(enum) {
         success: T,
@@ -126,3 +130,4 @@ const std = @import("std");
 const ProductClient = @import("product.zig").ProductClient;
 const ProfileClient = @import("profile.zig").ProfileClient;
 const AddressClient = @import("address.zig").AddressClient;
+const CardClient = @import("card.zig").CardClient;

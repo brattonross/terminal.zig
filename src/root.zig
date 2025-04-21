@@ -18,3 +18,12 @@ pub const GetAddressByIdResponse = @import("address.zig").GetAddressByIdResponse
 pub const CreateAddressRequest = @import("address.zig").CreateAddressRequest;
 pub const CreateAddressResponse = @import("address.zig").CreateAddressResponse;
 pub const DeleteAddressResponse = @import("address.zig").DeleteAddressResponse;
+
+// card
+pub const Card = @import("card.zig").Card;
+pub const ListCardsResponse = @import("card.zig").ListCardsResponse;
+pub const GetCardByIdResponse = @import("card.zig").GetCardByIdResponse;
+pub const CreateCardRequest = @import("card.zig").CreateCardRequest;
+pub const CreateCardResponse = @import("card.zig").CreateCardResponse;
+pub const CollectCardResponse = @import("card.zig").CollectCardResponse;
+pub const DeleteCardResponse = @import("card.zig").DeleteCardResponse;
