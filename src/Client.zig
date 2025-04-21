@@ -61,6 +61,10 @@ pub fn view(self: *Client) ViewClient {
     return .{ .client = self };
 }
 
+pub fn email(self: *Client) EmailClient {
+    return .{ .client = self };
+}
+
 pub fn fetch(self: *Client, comptime T: type, method: std.http.Method, url: []const u8, body: anytype) !Result(T) {
     var uri_buf: [1024]u8 = undefined;
     var remainder: []u8 = &uri_buf;
@@ -161,3 +165,4 @@ const SubscriptionClient = @import("subscription.zig").SubscriptionClient;
 const TokenClient = @import("token.zig").TokenClient;
 const AppClient = @import("app.zig").AppClient;
 const ViewClient = @import("view.zig").ViewClient;
+const EmailClient = @import("email.zig").EmailClient;

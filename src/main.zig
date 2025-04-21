@@ -279,6 +279,17 @@ pub fn main() !void {
                 .@"error" => |value| fatal("{}", .{value}),
             }
         }
+    } else if (std.mem.eql(u8, "email", command)) {
+        const subcommand = args.next() orelse fatal("Usage: terminal email <command>", .{});
+        const email_client = client.email();
+        if (std.mem.eql(u8, "subscribe", subcommand)) {
+            const json = args.next() orelse fatal("Usage: terminal email subscribe <json>", .{});
+            const request = try std.json.parseFromSliceLeaky(terminal.EmailSubscribeRequest, allocator, json, .{});
+            switch (try email_client.subscribe(request)) {
+                .success => |value| try std.json.stringify(value, .{}, stdout),
+                .@"error" => |value| fatal("{}", .{value}),
+            }
+        }
     }
 }
 

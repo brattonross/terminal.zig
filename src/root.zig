@@ -74,3 +74,7 @@ pub const DeleteAppResponse = @import("app.zig").DeleteAppResponse;
 
 // view
 pub const InitViewResponse = @import("view.zig").InitViewResponse;
+
+// email
+pub const EmailSubscribeRequest = @import("email.zig").EmailSubscribeRequest;
+pub const EmailSubscribeResponse = @import("email.zig").EmailSubscribeResponse;
